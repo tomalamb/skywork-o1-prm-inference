@@ -165,10 +165,15 @@ class PRM_MODEL(PreTrainedModelWrapper):
         if lm_logits.dtype != torch.float32:
             lm_logits = lm_logits.float()
 
+        # Always append hidden states as the last returned element (backwards compatible)
+        hidden_states = base_model_output.hidden_states
+
         if return_past_key_values:
-            return (lm_logits, loss, value, base_model_output.past_key_values)
+            # (lm_logits, loss, value, past_key_values, hidden_states)
+            return (lm_logits, loss, value, base_model_output.past_key_values, hidden_states)
         else:
-            return (lm_logits, loss, value)
+            # (lm_logits, loss, value, hidden_states)
+            return (lm_logits, loss, value, hidden_states)
 
     def generate(self, *args, **kwargs):
         r"""
